@@ -7,5 +7,5 @@
     "email": "israelefe093@gmail.com",
     "password": "volunteer123"
   },
-  "note": "The browser demo database is seeded automatically by assets/js/store.js using localStorage."
+  "note": "Supabase seed activities are in database/schema.sql. The browser fallback database is seeded automatically by assets/js/store.js when Supabase config is empty."
 }

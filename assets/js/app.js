@@ -30,21 +30,27 @@
       </article>`;
   }
 
-  function renderActivities() {
-    const db = store.read();
+  async function renderActivities() {
     const preview = document.querySelector("[data-activities-preview]");
     const list = document.querySelector("[data-activities-list]");
-    if (preview) preview.innerHTML = db.activities.slice(0, 3).map(activityCard).join("");
-    if (list) {
-      list.innerHTML = db.activities.map((activity) => `
-        <article class="activity-card" id="${activity.id}">
-          <img src="${store.publicImage(activity.image)}" alt="${activity.title}">
-          <div>
-            <div class="activity-meta"><span class="badge">${activity.category}</span><span class="badge">${activity.date}</span><span class="badge">${activity.location}</span></div>
-            <h3>${activity.title}</h3>
-            <p>${activity.body || activity.summary}</p>
-          </div>
-        </article>`).join("");
+    if (!preview && !list) return;
+    try {
+      const db = await store.read();
+      if (preview) preview.innerHTML = db.activities.slice(0, 3).map(activityCard).join("");
+      if (list) {
+        list.innerHTML = db.activities.map((activity) => `
+          <article class="activity-card" id="${activity.id}">
+            <img src="${store.publicImage(activity.image)}" alt="${activity.title}">
+            <div>
+              <div class="activity-meta"><span class="badge">${activity.category}</span><span class="badge">${activity.date}</span><span class="badge">${activity.location}</span></div>
+              <h3>${activity.title}</h3>
+              <p>${activity.body || activity.summary}</p>
+            </div>
+          </article>`).join("");
+      }
+    } catch (error) {
+      const target = preview || list;
+      target.innerHTML = `<p class="form-note">Unable to load activities: ${error.message}</p>`;
     }
   }
 
@@ -71,24 +77,36 @@
 
   function wireForms() {
     document.querySelectorAll("[data-help-form]").forEach((form) => {
-      form.addEventListener("submit", (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const data = Object.fromEntries(new FormData(form).entries());
-        const session = store.getSession();
-        store.submitHelpRequest({ ...data, userEmail: session ? session.email : data.email });
-        form.reset();
-        form.querySelector(".form-note").textContent = "Help request submitted. The team can review it from the admin dashboard.";
+        const note = form.querySelector(".form-note");
+        note.textContent = "Submitting...";
+        try {
+          const data = Object.fromEntries(new FormData(form).entries());
+          const session = await store.getSession();
+          await store.submitHelpRequest({ ...data, userEmail: session ? session.email : data.email });
+          form.reset();
+          note.textContent = "Help request submitted. The team can review it from the admin dashboard.";
+        } catch (error) {
+          note.textContent = error.message;
+        }
       });
     });
 
     document.querySelectorAll("[data-application-form]").forEach((form) => {
-      form.addEventListener("submit", (event) => {
+      form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        const data = Object.fromEntries(new FormData(form).entries());
-        const session = store.getSession();
-        store.submitApplication({ ...data, userEmail: session ? session.email : data.email });
-        form.reset();
-        form.querySelector(".form-note").textContent = "Application submitted. Thank you for volunteering.";
+        const note = form.querySelector(".form-note");
+        note.textContent = "Submitting...";
+        try {
+          const data = Object.fromEntries(new FormData(form).entries());
+          const session = await store.getSession();
+          await store.submitApplication({ ...data, userEmail: session ? session.email : data.email });
+          form.reset();
+          note.textContent = "Application submitted. Thank you for volunteering.";
+        } catch (error) {
+          note.textContent = error.message;
+        }
       });
     });
   }
