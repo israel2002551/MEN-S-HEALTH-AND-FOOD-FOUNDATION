@@ -14,10 +14,6 @@
       note.textContent = "Signing in...";
       try {
         const user = await store.login(data.email, data.password, role);
-        if (!user) {
-          note.textContent = "Login failed. Check your email, password, and account type.";
-          return;
-        }
         redirectFor(user);
       } catch (error) {
         note.textContent = error.message;

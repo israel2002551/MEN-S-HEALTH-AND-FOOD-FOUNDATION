@@ -14,11 +14,11 @@ Responsive multi-page NGO website template with Supabase-ready data:
 ## Demo Credentials
 
 Admin fallback:
-- Email: `admin@mhff.org`
+- Email: `gojariafe@gmail.com`
 - Password: `admin123`
 
 Volunteer fallback:
-- Email: `volunteer@mhff.org`
+- Email: `israelefe093@gmail.com`
 - Password: `volunteer123`
 
 ## Supabase Setup

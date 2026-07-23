@@ -7,8 +7,8 @@
 
   const seed = {
     users: [
-      { id: "admin-1", role: "admin", name: "Site Administrator", email: "admin@mhff.org", password: "admin123", phone: "+2347044250591", skill: "Administration", createdAt: "2026-07-23" },
-      { id: "vol-1", role: "volunteer", name: "Demo Volunteer", email: "volunteer@mhff.org", password: "volunteer123", phone: "+2347000000000", skill: "Community worker", createdAt: "2026-07-23" }
+      { id: "admin-1", role: "admin", name: "Site Administrator", email: "gojariafe@gmail.com", password: "admin123", phone: "+2347044250591", skill: "Administration", createdAt: "2026-07-23" },
+      { id: "vol-1", role: "volunteer", name: "Demo Volunteer", email: "israelefe093@gmail.com", password: "volunteer123", phone: "+2347000000000", skill: "Community worker", createdAt: "2026-07-23" }
     ],
     activities: [
       { id: "act-1", title: "Men's Preventive Health Screening Camp", category: "Health Screening", date: "2026-07-20", location: "Ovia, Edo State", image: "assets/images/health-screening.png", video: "", summary: "Free blood pressure checks, glucose screening, and health education for adult men and families.", body: "Volunteers supported a community screening exercise focused on early detection, health literacy, and practical referral guidance." },
@@ -181,11 +181,18 @@
         return user;
       }
       const { data, error } = await client.auth.signInWithPassword({ email, password });
-      if (error || !data.user) return null;
-      const profile = await getProfile(data.user.id);
+      if (error) throw new Error(`Supabase auth: ${error.message}`);
+      if (!data.user) throw new Error("Supabase auth did not return a user.");
+      let profile;
+      try {
+        profile = await getProfile(data.user.id);
+      } catch (error) {
+        await client.auth.signOut();
+        throw new Error(`Profile lookup failed: ${error.message}. Confirm this user has a row in public.profiles.`);
+      }
       if (profile.role !== role) {
         await client.auth.signOut();
-        return null;
+        throw new Error(`This account is registered as "${profile.role}", not "${role}".`);
       }
       return { id: data.user.id, role: profile.role, name: profile.name, email: data.user.email };
     },
