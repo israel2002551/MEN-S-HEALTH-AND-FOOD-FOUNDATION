@@ -1,10 +1,10 @@
 {
   "adminDemo": {
-    "email": "admin@mhff.org",
+    "email": "gojariafe@gmail.com",
     "password": "admin123"
   },
   "volunteerDemo": {
-    "email": "volunteer@mhff.org",
+    "email": "israelefe093@gmail.com",
     "password": "volunteer123"
   },
   "note": "The browser demo database is seeded automatically by assets/js/store.js using localStorage."
