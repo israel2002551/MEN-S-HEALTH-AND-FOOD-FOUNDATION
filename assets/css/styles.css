@@ -107,6 +107,9 @@ label { display: grid; gap: 6px; color: var(--green-900); font-size: .88rem; fon
 input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: var(--radius); background: #fbfdfb; color: var(--ink); padding: 12px 13px; outline: none; }
 textarea { min-height: 120px; resize: vertical; }
 input:focus, select:focus, textarea:focus { border-color: var(--green-700); box-shadow: 0 0 0 4px rgba(19,113,63,.12); }
+.password-control { position: relative; display: block; }
+.password-control input { padding-right: 72px; }
+.password-toggle { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); min-height: 34px; padding: 5px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); color: var(--green-800); cursor: pointer; font-size: .82rem; font-weight: 850; }
 .form-note { min-height: 24px; color: var(--green-800); font-weight: 850; }
 .panel { padding: 24px; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; }

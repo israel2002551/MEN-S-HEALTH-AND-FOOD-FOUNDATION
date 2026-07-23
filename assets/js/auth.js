@@ -2,6 +2,29 @@
   const store = window.MHFFStore;
   const role = document.body.dataset.role;
 
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    const label = input.closest("label");
+    if (!label || label.querySelector(".password-toggle")) return;
+    const control = document.createElement("span");
+    control.className = "password-control";
+    input.parentNode.insertBefore(control, input);
+    control.appendChild(input);
+
+    const button = document.createElement("button");
+    button.className = "password-toggle";
+    button.type = "button";
+    button.textContent = "Show";
+    button.setAttribute("aria-label", "Show password");
+    control.appendChild(button);
+
+    button.addEventListener("click", () => {
+      const isHidden = input.type === "password";
+      input.type = isHidden ? "text" : "password";
+      button.textContent = isHidden ? "Hide" : "Show";
+      button.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+    });
+  });
+
   function redirectFor(user) {
     location.href = user.role === "admin" ? "../admin/dashboard.html" : "../portal/dashboard.html";
   }
