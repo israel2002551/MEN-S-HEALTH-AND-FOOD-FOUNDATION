@@ -7,6 +7,7 @@ Responsive multi-page NGO website template with Supabase-ready data:
 - Volunteer login, registration, forgot password request, dashboard, help requests, and volunteer applications
 - Supabase Auth for admin/volunteer login, registration, and password reset
 - Supabase tables for activities, volunteer applications, and help requests
+- Admin-managed activity/program image URLs and video URLs
 - Browser-backed demo fallback using `localStorage` when Supabase config is empty
 - Supabase schema and RLS policies in `database/schema.sql`
 
@@ -45,3 +46,13 @@ UPDATE public.profiles SET role = 'admin' WHERE id = '<AUTH_USER_UUID>';
 Open `index.html` in a browser. If Supabase config is empty, the site uses local demo data. If configured, admin-published activities are saved in Supabase and reflected on the Home and Activities pages.
 
 For production, configure Supabase Auth email settings and consider adding Supabase Storage for image uploads.
+
+## Existing Supabase Projects
+
+If you already ran the older schema, run this migration in Supabase SQL Editor:
+
+```sql
+-- see database/add-media-and-programs.sql
+```
+
+This adds activity videos and the admin-managed `programs` table without deleting existing data.

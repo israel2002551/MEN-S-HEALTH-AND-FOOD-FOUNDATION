@@ -17,10 +17,37 @@
     });
   }
 
+  function videoEmbedUrl(url) {
+    if (!url) return "";
+    try {
+      const parsed = new URL(url);
+      if (parsed.hostname.includes("youtube.com")) {
+        const id = parsed.searchParams.get("v");
+        return id ? `https://www.youtube.com/embed/${id}` : url;
+      }
+      if (parsed.hostname.includes("youtu.be")) {
+        return `https://www.youtube.com/embed/${parsed.pathname.replace("/", "")}`;
+      }
+      if (parsed.hostname.includes("vimeo.com")) {
+        return `https://player.vimeo.com/video/${parsed.pathname.replace("/", "")}`;
+      }
+      return url;
+    } catch (error) {
+      return url;
+    }
+  }
+
+  function mediaMarkup(item, alt) {
+    if (item.video) {
+      return `<div class="media-frame"><iframe src="${videoEmbedUrl(item.video)}" title="${alt}" loading="lazy" allowfullscreen></iframe></div>`;
+    }
+    return `<img src="${store.publicImage(item.image)}" alt="${alt}">`;
+  }
+
   function activityCard(activity) {
     return `
       <article class="activity-card">
-        <img src="${store.publicImage(activity.image)}" alt="${activity.title}">
+        ${mediaMarkup(activity, activity.title)}
         <div>
           <div class="activity-meta"><span class="badge">${activity.category}</span><span class="badge">${activity.date}</span></div>
           <h3>${activity.title}</h3>
@@ -28,6 +55,33 @@
           <div class="activity-actions"><a class="btn btn-outline" href="${body.dataset.page === "home" ? "pages/" : ""}activities.html#${activity.id}">Read More</a></div>
         </div>
       </article>`;
+  }
+
+  function programCard(program) {
+    return `
+      <article class="image-card">
+        ${mediaMarkup(program, program.title)}
+        <div>
+          <div class="activity-meta"><span class="badge">${program.category}</span></div>
+          <h3>${program.title}</h3>
+          <p>${program.summary}</p>
+        </div>
+      </article>`;
+  }
+
+  async function renderPrograms() {
+    const preview = document.querySelector("[data-programs-preview]");
+    const list = document.querySelector("[data-programs-list]");
+    if (!preview && !list) return;
+    try {
+      const db = await store.read();
+      const programs = db.programs || [];
+      if (preview) preview.innerHTML = programs.slice(0, 3).map(programCard).join("");
+      if (list) list.innerHTML = programs.map(programCard).join("");
+    } catch (error) {
+      const target = preview || list;
+      target.innerHTML = `<p class="form-note">Unable to load programs: ${error.message}</p>`;
+    }
   }
 
   async function renderActivities() {
@@ -40,7 +94,7 @@
       if (list) {
         list.innerHTML = db.activities.map((activity) => `
           <article class="activity-card" id="${activity.id}">
-            <img src="${store.publicImage(activity.image)}" alt="${activity.title}">
+            ${mediaMarkup(activity, activity.title)}
             <div>
               <div class="activity-meta"><span class="badge">${activity.category}</span><span class="badge">${activity.date}</span><span class="badge">${activity.location}</span></div>
               <h3>${activity.title}</h3>
@@ -111,6 +165,7 @@
     });
   }
 
+  renderPrograms();
   renderActivities();
   animateCounters();
   wireForms();

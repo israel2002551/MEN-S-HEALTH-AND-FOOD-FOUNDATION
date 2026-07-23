@@ -1,8 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin Dashboard</title><link rel="stylesheet" href="../assets/css/styles.css"></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
 <body>
-  <main class="dashboard"><aside class="sidebar"><a class="brand" href="../index.html"><span class="brand-mark">MH</span><span><strong>MHFF Admin</strong><small data-admin-name>Administrator</small></span></a><nav><a class="btn" href="../index.html">View Site</a><a class="btn" href="../pages/activities.html">Public Activities</a><button class="btn" type="button" data-logout>Logout</button></nav></aside><section class="dashboard-main"><div class="section-head row-between"><div><span class="eyebrow">Dashboard</span><h2>Admin control panel</h2><p>Create activities and review volunteer/help submissions.</p></div></div><div class="impact-grid" data-admin-stats></div><section class="section"><div class="card-grid two"><div class="panel"><h3>Post NGO Activity or Achievement</h3><form class="form-grid" data-activity-form><div class="field-row"><label>Title<input name="title" required></label><label>Category<select name="category" required><option>Health Screening</option><option>Food Drive</option><option>Workshop</option><option>Achievement</option><option>Upcoming Event</option></select></label></div><div class="field-row"><label>Date<input type="date" name="date" required></label><label>Location<input name="location" required></label></div><label>Image path or URL<input name="image" value="assets/images/community-outreach-hero.png" required></label><label>Short summary<textarea name="summary" required></textarea></label><label>Full post<textarea name="body" required></textarea></label><button class="btn btn-primary" type="submit">Publish Activity</button><span class="form-note"></span></form></div><div class="panel"><h3>Published Activities</h3><div class="table-wrap"><table><thead><tr><th>Activity</th><th>Date</th><th>Location</th><th>Action</th></tr></thead><tbody data-admin-activities></tbody></table></div></div></div></section><section class="section"><div class="card-grid two"><div class="panel"><h3>Volunteer Applications</h3><div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Availability</th><th>Status</th></tr></thead><tbody data-admin-applications></tbody></table></div></div><div class="panel"><h3>Help Requests</h3><div class="table-wrap"><table><thead><tr><th>Name</th><th>Request</th><th>Community</th><th>Status</th></tr></thead><tbody data-admin-help></tbody></table></div></div></div></section></section></main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/supabase-config.js"></script><script src="../assets/js/store.js"></script><script src="../assets/js/admin.js"></script>
+  <main class="dashboard">
+    <aside class="sidebar">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">MH</span>
+        <span><strong>MHFF Admin</strong><small data-admin-name>Administrator</small></span>
+      </a>
+      <nav>
+        <a class="btn" href="../index.html">View Site</a>
+        <a class="btn" href="../pages/programs.html">Public Programs</a>
+        <a class="btn" href="../pages/activities.html">Public Activities</a>
+        <button class="btn" type="button" data-logout>Logout</button>
+      </nav>
+    </aside>
+
+    <section class="dashboard-main">
+      <div class="section-head row-between">
+        <div>
+          <span class="eyebrow">Dashboard</span>
+          <h2>Admin control panel</h2>
+          <p>Create programs, publish activities, and add image/video media URLs for public pages.</p>
+        </div>
+      </div>
+
+      <div class="impact-grid" data-admin-stats></div>
+
+      <section class="section">
+        <div class="card-grid two">
+          <div class="panel">
+            <h3>Post NGO Activity or Achievement</h3>
+            <form class="form-grid" data-activity-form>
+              <div class="field-row">
+                <label>Title<input name="title" required></label>
+                <label>Category
+                  <select name="category" required>
+                    <option>Health Screening</option>
+                    <option>Food Drive</option>
+                    <option>Workshop</option>
+                    <option>Achievement</option>
+                    <option>Upcoming Event</option>
+                  </select>
+                </label>
+              </div>
+              <div class="field-row">
+                <label>Date<input type="date" name="date" required></label>
+                <label>Location<input name="location" required></label>
+              </div>
+              <label>Image path or URL<input name="image" value="assets/images/community-outreach-hero.png" required></label>
+              <label>Video URL<input name="video" placeholder="YouTube, Vimeo, or embeddable video URL"></label>
+              <label>Short summary<textarea name="summary" required></textarea></label>
+              <label>Full post<textarea name="body" required></textarea></label>
+              <button class="btn btn-primary" type="submit">Publish Activity</button>
+              <span class="form-note"></span>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h3>Published Activities</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Activity</th><th>Date</th><th>Location</th><th>Media</th><th>Action</th></tr></thead>
+                <tbody data-admin-activities></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card-grid two">
+          <div class="panel">
+            <h3>Add Program</h3>
+            <form class="form-grid" data-program-form>
+              <div class="field-row">
+                <label>Program title<input name="title" required></label>
+                <label>Category<input name="category" placeholder="Health, Food Security, Wellness" required></label>
+              </div>
+              <label>Image path or URL<input name="image" value="assets/images/health-screening.png" required></label>
+              <label>Video URL<input name="video" placeholder="YouTube, Vimeo, or embeddable video URL"></label>
+              <label>Short summary<textarea name="summary" required></textarea></label>
+              <label>Full description<textarea name="body" required></textarea></label>
+              <button class="btn btn-primary" type="submit">Publish Program</button>
+              <span class="form-note"></span>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h3>Published Programs</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Program</th><th>Category</th><th>Media</th><th>Action</th></tr></thead>
+                <tbody data-admin-programs></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="card-grid two">
+          <div class="panel">
+            <h3>Volunteer Applications</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Name</th><th>Role</th><th>Availability</th><th>Status</th></tr></thead>
+                <tbody data-admin-applications></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Help Requests</h3>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Name</th><th>Request</th><th>Community</th><th>Status</th></tr></thead>
+                <tbody data-admin-help></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-config.js"></script>
+  <script src="../assets/js/store.js"></script>
+  <script src="../assets/js/admin.js"></script>
 </body>
 </html>

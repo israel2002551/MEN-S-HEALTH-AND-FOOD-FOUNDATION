@@ -19,6 +19,19 @@ CREATE TABLE public.activities (
   activity_date DATE NOT NULL DEFAULT CURRENT_DATE,
   location TEXT NOT NULL,
   image_url TEXT,
+  video_url TEXT,
+  summary TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE public.programs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  image_url TEXT,
+  video_url TEXT,
   summary TEXT NOT NULL,
   body TEXT NOT NULL,
   created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
@@ -90,6 +103,7 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.programs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.volunteer_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.help_requests ENABLE ROW LEVEL SECURITY;
 
@@ -117,6 +131,23 @@ WITH CHECK (public.is_admin());
 
 CREATE POLICY "Admins can delete activities"
 ON public.activities FOR DELETE
+USING (public.is_admin());
+
+CREATE POLICY "Programs are public"
+ON public.programs FOR SELECT
+USING (true);
+
+CREATE POLICY "Admins can create programs"
+ON public.programs FOR INSERT
+WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins can update programs"
+ON public.programs FOR UPDATE
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins can delete programs"
+ON public.programs FOR DELETE
 USING (public.is_admin());
 
 CREATE POLICY "Volunteers can create applications"
@@ -150,6 +181,13 @@ VALUES
   ('Men''s Preventive Health Screening Camp', 'Health Screening', '2026-07-20', 'Ovia, Edo State', 'assets/images/health-screening.png', 'Free blood pressure checks, glucose screening, and health education for adult men and families.', 'Volunteers supported a community screening exercise focused on early detection, health literacy, and practical referral guidance.'),
   ('Emergency Food Assistance Outreach', 'Food Drive', '2026-07-14', 'Benin City, Edo State', 'assets/images/food-distribution.png', 'Food packs were distributed to vulnerable households with nutrition education support.', 'The outreach connected food staples with household nutrition conversations so families received immediate relief and practical guidance.'),
   ('Volunteer Wellness Planning Workshop', 'Workshop', '2026-07-05', 'Foundation office', 'assets/images/volunteer-workshop.png', 'Healthcare volunteers and community workers planned upcoming food and health outreach activities.', 'The session prepared teams for registration, beneficiary handling, health messaging, and transparent reporting.')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.programs (title, category, image_url, summary, body)
+VALUES
+  ('Preventive Health Screening', 'Health', 'assets/images/health-screening.png', 'Men''s health awareness, BP checks, glucose checks, mental health conversations, and referral guidance.', 'Screening programs help men and families identify risks early and connect to basic health education.'),
+  ('Emergency Food Assistance', 'Food Security', 'assets/images/food-distribution.png', 'Food distribution for vulnerable households, low-income families, and community representatives.', 'Food drives provide immediate relief while reinforcing practical household nutrition education.'),
+  ('Community Wellness Workshops', 'Wellness', 'assets/images/volunteer-workshop.png', 'Nutrition, hygiene, chronic illness prevention, volunteer training, and family wellbeing education.', 'Workshops build local knowledge and prepare volunteers for accountable outreach.')
 ON CONFLICT DO NOTHING;
 
 -- To make an existing Supabase Auth user an admin, run this after signing up:

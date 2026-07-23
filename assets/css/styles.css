@@ -89,6 +89,8 @@ h1, h2, h3 { color: var(--green-900); line-height: 1.05; letter-spacing: 0; }
 .card-grid.two { grid-template-columns: repeat(2, 1fr); }
 .image-card, .activity-card, .panel { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 10px 28px rgba(7,61,34,.07); overflow: hidden; }
 .image-card img, .activity-card img { height: 225px; object-fit: cover; }
+.media-frame { width: 100%; height: 225px; background: var(--green-950); overflow: hidden; }
+.media-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
 .image-card div, .activity-card div { padding: 20px; }
 .activity-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .badge { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 10px; border-radius: var(--radius); background: var(--green-100); color: var(--green-800); font-size: .8rem; font-weight: 850; }

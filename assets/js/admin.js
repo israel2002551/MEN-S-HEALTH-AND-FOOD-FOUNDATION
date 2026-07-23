@@ -26,9 +26,15 @@
     if (!stats) return;
     stats.innerHTML = `
       <article><strong>${db.activities.length}</strong><span>Activities</span></article>
+      <article><strong>${(db.programs || []).length}</strong><span>Programs</span></article>
       <article><strong>${db.applications.length}</strong><span>Volunteer Applications</span></article>
-      <article><strong>${db.helpRequests.length}</strong><span>Help Requests</span></article>
-      <article><strong>${store.isSupabaseEnabled ? "On" : "Demo"}</strong><span>Database Mode</span></article>`;
+      <article><strong>${db.helpRequests.length}</strong><span>Help Requests</span></article>`;
+  }
+
+  function mediaStatus(item) {
+    const image = item.image ? "Image" : "";
+    const video = item.video ? "Video" : "";
+    return [image, video].filter(Boolean).join(" + ") || "None";
   }
 
   async function renderActivityAdmin() {
@@ -40,6 +46,7 @@
         <td><strong>${item.title}</strong><br><small>${item.category}</small></td>
         <td>${item.date}</td>
         <td>${item.location}</td>
+        <td>${mediaStatus(item)}</td>
         <td><button class="btn btn-danger" type="button" data-delete-activity="${item.id}">Delete</button></td>
       </tr>`).join("");
     list.querySelectorAll("[data-delete-activity]").forEach((button) => {
@@ -61,6 +68,43 @@
         form.reset();
         note.textContent = "Activity published. It now appears on the public activities section.";
         await renderActivityAdmin();
+        await renderStats();
+      } catch (error) {
+        note.textContent = error.message;
+      }
+    });
+  });
+
+  async function renderProgramAdmin() {
+    const list = document.querySelector("[data-admin-programs]");
+    if (!list) return;
+    const programs = (await getDb()).programs || [];
+    list.innerHTML = programs.length ? programs.map((item) => `
+      <tr>
+        <td><strong>${item.title}</strong><br><small>${item.summary}</small></td>
+        <td>${item.category}</td>
+        <td>${mediaStatus(item)}</td>
+        <td><button class="btn btn-danger" type="button" data-delete-program="${item.id}">Delete</button></td>
+      </tr>`).join("") : `<tr><td colspan="4">No programs yet.</td></tr>`;
+    list.querySelectorAll("[data-delete-program]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        await store.deleteProgram(button.dataset.deleteProgram);
+        await renderProgramAdmin();
+        await renderStats();
+      });
+    });
+  }
+
+  document.querySelectorAll("[data-program-form]").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const note = form.querySelector(".form-note");
+      note.textContent = "Publishing...";
+      try {
+        await store.saveProgram(Object.fromEntries(new FormData(form).entries()));
+        form.reset();
+        note.textContent = "Program published. It now appears on the public programs section.";
+        await renderProgramAdmin();
         await renderStats();
       } catch (error) {
         note.textContent = error.message;
@@ -94,5 +138,6 @@
 
   await renderStats();
   await renderActivityAdmin();
+  await renderProgramAdmin();
   await renderRequests();
 })();
