@@ -4,6 +4,7 @@
   const config = window.MHFF_SUPABASE_CONFIG || {};
   const hasSupabase = Boolean(config.url && config.anonKey && window.supabase);
   const client = hasSupabase ? window.supabase.createClient(config.url, config.anonKey) : null;
+  const MEDIA_BUCKET = "ngo-media";
 
   const seed = {
     users: [
@@ -109,6 +110,50 @@
     };
   }
 
+  function fileFrom(data, key) {
+    const file = data[key];
+    return file && typeof File !== "undefined" && file instanceof File && file.size > 0 ? file : null;
+  }
+
+  function safeFileName(fileName) {
+    const extension = fileName.includes(".") ? fileName.split(".").pop().toLowerCase() : "bin";
+    const base = fileName.replace(/\.[^/.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "media";
+    return `${base}.${extension}`;
+  }
+
+  async function uploadMedia(file, folder) {
+    if (!file) return "";
+    if (!client) throw new Error("Supabase Storage is required for device uploads. Add Supabase config first.");
+    const user = await requireUser();
+    if (!user) throw new Error("Please log in before uploading media.");
+    const path = `${folder}/${user.id}/${Date.now()}-${safeFileName(file.name)}`;
+    const { error } = await client.storage.from(MEDIA_BUCKET).upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type || undefined
+    });
+    if (error) throw new Error(`Storage upload failed: ${describeError(error)}`);
+    const { data } = client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  function withoutFiles(data) {
+    const copy = { ...data };
+    delete copy.imageFile;
+    delete copy.videoFile;
+    return copy;
+  }
+
+  async function activityPayload(data) {
+    const imageUpload = await uploadMedia(fileFrom(data, "imageFile"), "activities/images");
+    const videoUpload = await uploadMedia(fileFrom(data, "videoFile"), "activities/videos");
+    return {
+      ...fromActivity(data),
+      image_url: imageUpload || normalizeImage(data.image),
+      video_url: videoUpload || normalizeMedia(data.video)
+    };
+  }
+
   function toProgram(row) {
     return {
       id: row.id,
@@ -129,6 +174,16 @@
       video_url: normalizeMedia(data.video),
       summary: data.summary,
       body: data.body
+    };
+  }
+
+  async function programPayload(data) {
+    const imageUpload = await uploadMedia(fileFrom(data, "imageFile"), "programs/images");
+    const videoUpload = await uploadMedia(fileFrom(data, "videoFile"), "programs/videos");
+    return {
+      ...fromProgram(data),
+      image_url: imageUpload || normalizeImage(data.image),
+      video_url: videoUpload || normalizeMedia(data.video)
     };
   }
 
@@ -248,7 +303,9 @@
     async saveActivity(data) {
       if (!client) {
         const db = localRead();
-        const item = { id: data.id || uid("act"), date: data.date || new Date().toISOString().slice(0, 10), ...data, image: normalizeImage(data.image), video: normalizeMedia(data.video) };
+        if (fileFrom(data, "imageFile") || fileFrom(data, "videoFile")) throw new Error("Device uploads require Supabase Storage.");
+        const clean = withoutFiles(data);
+        const item = { id: clean.id || uid("act"), date: clean.date || new Date().toISOString().slice(0, 10), ...clean, image: normalizeImage(clean.image), video: normalizeMedia(clean.video) };
         const index = db.activities.findIndex((activity) => activity.id === item.id);
         if (index >= 0) db.activities[index] = item;
         else db.activities.unshift(item);
@@ -256,7 +313,7 @@
         return item;
       }
       const user = await requireUser();
-      const payload = { ...fromActivity(data), created_by: user ? user.id : null };
+      const payload = { ...(await activityPayload(data)), created_by: user ? user.id : null };
       const { data: row, error } = await client.from("activities").insert(payload).select("*").single();
       if (error) throw error;
       return toActivity(row);
@@ -274,8 +331,10 @@
     async saveProgram(data) {
       if (!client) {
         const db = localRead();
+        if (fileFrom(data, "imageFile") || fileFrom(data, "videoFile")) throw new Error("Device uploads require Supabase Storage.");
+        const clean = withoutFiles(data);
         db.programs = db.programs || [];
-        const item = { id: data.id || uid("prog"), ...data, image: normalizeImage(data.image), video: normalizeMedia(data.video) };
+        const item = { id: clean.id || uid("prog"), ...clean, image: normalizeImage(clean.image), video: normalizeMedia(clean.video) };
         const index = db.programs.findIndex((program) => program.id === item.id);
         if (index >= 0) db.programs[index] = item;
         else db.programs.push(item);
@@ -283,7 +342,7 @@
         return item;
       }
       const user = await requireUser();
-      const payload = { ...fromProgram(data), created_by: user ? user.id : null };
+      const payload = { ...(await programPayload(data)), created_by: user ? user.id : null };
       const { data: row, error } = await client.from("programs").insert(payload).select("*").single();
       if (error) throw error;
       return toProgram(row);

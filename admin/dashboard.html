@@ -53,8 +53,10 @@
                 <label>Date<input type="date" name="date" required></label>
                 <label>Location<input name="location" required></label>
               </div>
-              <label>Image path or URL<input name="image" value="assets/images/community-outreach-hero.png" required></label>
-              <label>Video URL<input name="video" placeholder="YouTube, Vimeo, or embeddable video URL"></label>
+              <label>Upload image from device<input type="file" name="imageFile" accept="image/*"></label>
+              <label>Image path or URL<input name="image" value="assets/images/community-outreach-hero.png"></label>
+              <label>Upload video from device<input type="file" name="videoFile" accept="video/*"></label>
+              <label>Video URL<input name="video" placeholder="YouTube, Vimeo, direct MP4, or embeddable video URL"></label>
               <label>Short summary<textarea name="summary" required></textarea></label>
               <label>Full post<textarea name="body" required></textarea></label>
               <button class="btn btn-primary" type="submit">Publish Activity</button>
@@ -83,8 +85,10 @@
                 <label>Program title<input name="title" required></label>
                 <label>Category<input name="category" placeholder="Health, Food Security, Wellness" required></label>
               </div>
-              <label>Image path or URL<input name="image" value="assets/images/health-screening.png" required></label>
-              <label>Video URL<input name="video" placeholder="YouTube, Vimeo, or embeddable video URL"></label>
+              <label>Upload image from device<input type="file" name="imageFile" accept="image/*"></label>
+              <label>Image path or URL<input name="image" value="assets/images/health-screening.png"></label>
+              <label>Upload video from device<input type="file" name="videoFile" accept="video/*"></label>
+              <label>Video URL<input name="video" placeholder="YouTube, Vimeo, direct MP4, or embeddable video URL"></label>
               <label>Short summary<textarea name="summary" required></textarea></label>
               <label>Full description<textarea name="body" required></textarea></label>
               <button class="btn btn-primary" type="submit">Publish Program</button>

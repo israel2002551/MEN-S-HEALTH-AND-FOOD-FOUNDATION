@@ -39,6 +39,9 @@
 
   function mediaMarkup(item, alt) {
     if (item.video) {
+      if (/\.(mp4|webm|ogg)(\?|#|$)/i.test(item.video)) {
+        return `<div class="media-frame"><video src="${item.video}" controls preload="metadata"></video></div>`;
+      }
       return `<div class="media-frame"><iframe src="${videoEmbedUrl(item.video)}" title="${alt}" loading="lazy" allowfullscreen></iframe></div>`;
     }
     return `<img src="${store.publicImage(item.image)}" alt="${alt}">`;

@@ -8,6 +8,7 @@ Responsive multi-page NGO website template with Supabase-ready data:
 - Supabase Auth for admin/volunteer login, registration, and password reset
 - Supabase tables for activities, volunteer applications, and help requests
 - Admin-managed activity/program image URLs and video URLs
+- Admin uploads for activity/program images and videos through Supabase Storage
 - Browser-backed demo fallback using `localStorage` when Supabase config is empty
 - Supabase schema and RLS policies in `database/schema.sql`
 
@@ -46,6 +47,12 @@ UPDATE public.profiles SET role = 'admin' WHERE id = '<AUTH_USER_UUID>';
 Open `index.html` in a browser. If Supabase config is empty, the site uses local demo data. If configured, admin-published activities are saved in Supabase and reflected on the Home and Activities pages.
 
 For production, configure Supabase Auth email settings and consider adding Supabase Storage for image uploads.
+
+## Media Uploads
+
+Run `database/add-storage-media-bucket.sql` in Supabase SQL Editor to create the public `ngo-media` bucket and admin-only upload policies.
+
+Admin device uploads save the file in Supabase Storage and save the public media URL in the relevant `activities` or `programs` database row.
 
 ## Existing Supabase Projects
 
