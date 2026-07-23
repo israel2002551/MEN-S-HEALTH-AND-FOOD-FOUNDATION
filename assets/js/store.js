@@ -64,6 +64,24 @@
     return normalizeImage(path).trim();
   }
 
+  function describeError(error) {
+    if (!error) return "Unknown error";
+    if (typeof error === "string") return error;
+    const parts = [
+      error.message,
+      error.error_description,
+      error.error,
+      error.status ? `status ${error.status}` : "",
+      error.code ? `code ${error.code}` : ""
+    ].filter(Boolean);
+    if (parts.length) return parts.join(" | ");
+    try {
+      return JSON.stringify(error);
+    } catch (stringifyError) {
+      return Object.prototype.toString.call(error);
+    }
+  }
+
   function toActivity(row) {
     return {
       id: row.id,
@@ -181,14 +199,14 @@
         return user;
       }
       const { data, error } = await client.auth.signInWithPassword({ email, password });
-      if (error) throw new Error(`Supabase auth: ${error.message}`);
+      if (error) throw new Error(`Supabase auth: ${describeError(error)}`);
       if (!data.user) throw new Error("Supabase auth did not return a user.");
       let profile;
       try {
         profile = await getProfile(data.user.id);
       } catch (error) {
         await client.auth.signOut();
-        throw new Error(`Profile lookup failed: ${error.message}. Confirm this user has a row in public.profiles.`);
+        throw new Error(`Profile lookup failed: ${describeError(error)}. Confirm this user has a row in public.profiles.`);
       }
       if (profile.role !== role) {
         await client.auth.signOut();
